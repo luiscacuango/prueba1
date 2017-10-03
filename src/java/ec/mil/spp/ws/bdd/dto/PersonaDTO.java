@@ -16,6 +16,7 @@ public class PersonaDTO {
     private Date perFechaInicio;
     private Date perFechaFin;
     private String nombreGrado;
+    private String tipoEfectivo;
     private List<NovedadDTO> listaNovedad;
     
     
@@ -93,6 +94,14 @@ public class PersonaDTO {
 
     public void setListaNovedad(List<NovedadDTO> listaNovedad) {
         this.listaNovedad = listaNovedad;
+    }
+
+    public String getTipoEfectivo() {
+        return tipoEfectivo;
+    }
+
+    public void setTipoEfectivo(String tipoEfectivo) {
+        this.tipoEfectivo = tipoEfectivo;
     }
 
 }

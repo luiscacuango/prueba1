@@ -40,6 +40,7 @@ public class ApplicationConfig extends Application {
         resources.add(ec.mil.spp.ws.bdd.service.SpxsPerfilFacadeREST.class);
         resources.add(ec.mil.spp.ws.bdd.service.SsisSistemaFacadeREST.class);
         resources.add(ec.mil.spp.ws.bdd.service.SusuUsuarioFacadeREST.class);
+        resources.add(ec.mil.spp.ws.bdd.service.parte.NovedadWs.class);
         resources.add(ec.mil.spp.ws.bdd.service.parte.SeguridadWs.class);
     }
     

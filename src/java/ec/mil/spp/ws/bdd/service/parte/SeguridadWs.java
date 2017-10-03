@@ -38,7 +38,8 @@ public class SeguridadWs {
         UsuarioDTO usuarioDto;
         try {
             String claveDes = UtilSPP.encriptar(clave);
-            TypedQuery<SusuUsuario> conUsu = em.createQuery("Select usu FROM SusuUsuario usu where usu.usuUsuario =:usuario and usu.usuPassword =:clave", SusuUsuario.class);
+            TypedQuery<SusuUsuario> conUsu = em.createQuery("Select usu FROM SusuUsuario usu "
+                    + " where usu.usuUsuario =:usuario and usu.usuPassword =:clave", SusuUsuario.class);
             conUsu.setParameter("usuario", usuario);
             conUsu.setParameter("clave", claveDes);
             SusuUsuario usuarioPer = conUsu.getSingleResult();
@@ -61,21 +62,24 @@ public class SeguridadWs {
              * Cargar Personal Disponible
              * ********************************************************************************/
             List<PersonaDTO> listPersonal = new ArrayList<>();
-            for (PperPersona perTmp:buscarPersonalPorGrupo(usuarioPer.getPerSecuen().getFunSecuen().getUniSecuen().getGdoSecuen().getGdoSecuen(), new Date())) {
+            for (PperPersona perTmp:buscarPersonalPorGrupo(usuarioPer.getPerSecuen().getFunSecuen().getUniSecuen().getGdoSecuen().getGdoSecuen(), 
+                     new Date())) {
                 PersonaDTO personaDTO = new PersonaDTO();
                 personaDTO.setPerSecuen(perTmp.getPerSecuen());
                 personaDTO.setPerCedula(perTmp.getPerCedula());
                 personaDTO.setPerApellido(perTmp.getPerApellido());
                 personaDTO.setPerNombre(perTmp.getPerNombre());
                 personaDTO.setNombreGrado(perTmp.getGmiSecuen().getGmiAbreviat());
+                personaDTO.setTipoEfectivo(perTmp.getGmiSecuen().getGmiTipoefec().toString());
                 listPersonal.add(personaDTO);
             }            
             usuarioDto.setListaPersonal(listPersonal);
             /***********************************************************************************
-             * Cargar Personal Disponible
+             * Cargar Personal con Novedades
              * ********************************************************************************/
             List<PersonaDTO> listPersonalNov = new ArrayList<>();
-            for (PlypLiceperm licPerTmp:cargaNovedades(usuarioPer.getPerSecuen().getFunSecuen().getUniSecuen().getGdoSecuen().getGdoSecuen(), new Date())) {
+            for (PlypLiceperm licPerTmp:cargaNovedades(usuarioPer.getPerSecuen().getFunSecuen().getUniSecuen().getGdoSecuen().getGdoSecuen(), 
+                     new Date())) {
                 PersonaDTO personaDTO = new PersonaDTO();
                 personaDTO.setPerSecuen(licPerTmp.getPerSecuen().getPerSecuen());
                 personaDTO.setPerCedula(licPerTmp.getPerSecuen().getPerCedula());
