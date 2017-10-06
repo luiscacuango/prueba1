@@ -22,7 +22,8 @@ import javax.ws.rs.core.MediaType;
 
 /**
  * @unidad SIPER
- * @author Cbop. Cacuango Luis Clase para controlar las opciones de novedades
+ * @author Cbop. Cacuango Luis 
+ * Clase para controlar las opciones de novedades
  */
 @Path("novedad")
 public class NovedadWs {
@@ -43,8 +44,8 @@ public class NovedadWs {
                 + " order by tipNov.tlpTipo ", PtlpTiplicper.class);
         conTipNov.setParameter("listaTipoEfe", listaTipoEfe);
         TipoNovedadDTO tipNovLic = new TipoNovedadDTO(1, "Licencia");
-        TipoNovedadDTO tipNovPer = new TipoNovedadDTO(1, "Permiso");
-        TipoNovedadDTO tipNovNov = new TipoNovedadDTO(1, "Novedad");
+        TipoNovedadDTO tipNovPer = new TipoNovedadDTO(2, "Permiso");
+        TipoNovedadDTO tipNovNov = new TipoNovedadDTO(3, "Novedad");
         for (PtlpTiplicper tipPer : conTipNov.getResultList()) {
             TipoNovedadDTO tipInt = new TipoNovedadDTO();
             tipInt.setIdTipNov(tipPer.getTlpSecuen());
