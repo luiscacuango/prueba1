@@ -1,17 +1,13 @@
 package ec.mil.spp.ws.bdd.service.parte;
 
 import ec.mil.spp.negocio.util.UtilSPP;
-import ec.mil.spp.ws.bdd.PlypLiceperm;
-import ec.mil.spp.ws.bdd.PperPersona;
 import ec.mil.spp.ws.bdd.SusuUsuario;
-import ec.mil.spp.ws.bdd.dto.PersonaDTO;
 import ec.mil.spp.ws.bdd.dto.UsuarioDTO;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -24,6 +20,7 @@ import javax.ws.rs.core.MediaType;
  * @unidad SIPER
  * @author Cbop. Cacuango Luis
  */
+@Stateless  //Para decir que es una transaccion
 @Path("seguridad")
 public class SeguridadWs {
 

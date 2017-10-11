@@ -55,16 +55,13 @@ public class PlypLiceperm implements Serializable {
     @Column(name = "lyp_secuen")
     private Long lypSecuen;
     @Basic(optional = false)
-    @NotNull
     @Column(name = "lyp_inicio")
     @Temporal(TemporalType.TIMESTAMP)
     private Date lypInicio;
     @Basic(optional = false)
-    @NotNull
     @Column(name = "lyp_fin")
     @Temporal(TemporalType.TIMESTAMP)
     private Date lypFin;
-    @Size(max = 300)
     @Column(name = "lyp_observ")
     private String lypObserv;
     @Column(name = "lyp_fecha")

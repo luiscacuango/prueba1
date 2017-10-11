@@ -1,19 +1,19 @@
 package ec.mil.spp.ws.bdd.dto;
 
-import java.util.Date;
-
 /**
  * @author Cbop. Cacuango Luis
  */
 public class NovedadDTO {
+
     private Long lypSecuen;
-    private Date lypInicio;
-    private Date lypFin;
+    private String lypInicio;
+    private String lypFin;
     private String lypObserv;
-    private int lypDias;
-    private int lypHoras;
-    private int lypMinuto;
-    private int tipoLicencia;
+    private short lypDias;
+    private short lypHoras;
+    private short lypMinuto;
+    private short tipoLicencia;
+    private Long perSecuen;
     private PersonaDTO persona;
 
     public NovedadDTO() {
@@ -27,19 +27,19 @@ public class NovedadDTO {
         this.lypSecuen = lypSecuen;
     }
 
-    public Date getLypInicio() {
+    public String getLypInicio() {
         return lypInicio;
     }
 
-    public void setLypInicio(Date lypInicio) {
+    public void setLypInicio(String lypInicio) {
         this.lypInicio = lypInicio;
     }
 
-    public Date getLypFin() {
+    public String getLypFin() {
         return lypFin;
     }
 
-    public void setLypFin(Date lypFin) {
+    public void setLypFin(String lypFin) {
         this.lypFin = lypFin;
     }
 
@@ -51,36 +51,44 @@ public class NovedadDTO {
         this.lypObserv = lypObserv;
     }
 
-    public int getLypDias() {
+    public short getLypDias() {
         return lypDias;
     }
 
-    public void setLypDias(int lypDias) {
+    public void setLypDias(short lypDias) {
         this.lypDias = lypDias;
     }
 
-    public int getLypHoras() {
+    public short getLypHoras() {
         return lypHoras;
     }
 
-    public void setLypHoras(int lypHoras) {
+    public void setLypHoras(short lypHoras) {
         this.lypHoras = lypHoras;
     }
 
-    public int getLypMinuto() {
+    public short getLypMinuto() {
         return lypMinuto;
     }
 
-    public void setLypMinuto(int lypMinuto) {
+    public void setLypMinuto(short lypMinuto) {
         this.lypMinuto = lypMinuto;
     }
 
-    public int getTipoLicencia() {
+    public short getTipoLicencia() {
         return tipoLicencia;
     }
 
-    public void setTipoLicencia(int tipoLicencia) {
+    public void setTipoLicencia(short tipoLicencia) {
         this.tipoLicencia = tipoLicencia;
+    }
+
+    public Long getPerSecuen() {
+        return perSecuen;
+    }
+
+    public void setPerSecuen(Long perSecuen) {
+        this.perSecuen = perSecuen;
     }
 
     public PersonaDTO getPersona() {
@@ -90,7 +98,5 @@ public class NovedadDTO {
     public void setPersona(PersonaDTO persona) {
         this.persona = persona;
     }
-    
-    
-    
+
 }

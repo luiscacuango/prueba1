@@ -7,9 +7,14 @@ import ec.mil.spp.ws.bdd.dto.NovedadDTO;
 import ec.mil.spp.ws.bdd.dto.PersonaDTO;
 import ec.mil.spp.ws.bdd.dto.TipoNovedadDTO;
 import java.math.BigInteger;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
@@ -25,9 +30,9 @@ import javax.ws.rs.core.MediaType;
 
 /**
  * @unidad SIPER
- * @author Cbop. Cacuango Luis 
- * Clase para controlar las opciones de novedades
+ * @author Cbop. Cacuango Luis Clase para controlar las opciones de novedades
  */
+@Stateless  //Para decir que es una transaccion
 @Path("novedad")
 public class NovedadWs {
 
@@ -73,24 +78,25 @@ public class NovedadWs {
     public String guardarNovedad(NovedadDTO novedadDto) throws Exception {
         PlypLiceperm novedad = new PlypLiceperm();
         novedad.setCiuSecuen(BigInteger.valueOf(5));
-        novedad.setPerSecuen(em.find(PperPersona.class, novedadDto.getPersona().getPerSecuen()));
+        novedad.setPerSecuen(em.find(PperPersona.class, novedadDto.getPerSecuen()));
         novedad.setTlpSecuen(em.find(PtlpTiplicper.class, novedadDto.getTipoLicencia()));
-        novedad.setLypInicio(novedadDto.getLypInicio());
-        novedad.setLypFin(novedadDto.getLypFin());
+        novedad.setLypInicio(formaterarCadenaAFecha(novedadDto.getLypInicio()));
+        novedad.setLypFin(formaterarCadenaAFecha(novedadDto.getLypFin()));
         novedad.setLypObserv(novedadDto.getLypObserv());
-        novedad.setLypDias((short) novedadDto.getLypDias());
-        novedad.setLypHoras((short) novedadDto.getLypHoras());
-        novedad.setLypMinuto((short) novedadDto.getLypMinuto());
+        novedad.setLypDias(novedadDto.getLypDias());
+        novedad.setLypHoras(novedadDto.getLypHoras());
+        novedad.setLypMinuto(novedadDto.getLypMinuto());
         novedad.setLypEntreg('S');
         novedad.setLypFecent(new Date());
-        novedad.setLypDiaimp(null);
+        novedad.setLypDiaimp(new Short("0"));
         novedad.setLypFecha(new Date());
         em.persist(novedad);
         return "Novedad registrada exitosamente";
     }
 
     /**
-     *  Metodo para consultar al personal Disponible
+     * Metodo para consultar al personal Disponible
+     *
      * @param fechaBus
      * @param perSecuen
      * @return
@@ -99,29 +105,32 @@ public class NovedadWs {
     @GET
     @Path("consultarPerDisponible")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<PersonaDTO> consultarPersonaDisponible(@QueryParam(value = "fechaBus") Date fechaBus, 
-            @QueryParam(value = "perSecuen") Long perSecuen) throws Exception{
-            /***********************************************************************************
-             * Consultar Personal Disponible
-             * ********************************************************************************/
+    public List<PersonaDTO> consultarPersonaDisponible(@QueryParam(value = "fechaBus") Date fechaBus,
+            @QueryParam(value = "perSecuen") Long perSecuen) throws Exception {
+        /**
+         * *********************************************************************************
+         * Consultar Personal Disponible
+             * *******************************************************************************
+         */
         PperPersona persona = em.find(PperPersona.class, perSecuen);
-            List<PersonaDTO> listPersonal = new ArrayList<>();
-            for (PperPersona perTmp:buscarPersonalPorGrupo(persona.getFunSecuen().getUniSecuen().getGdoSecuen().getGdoSecuen(), 
-                     fechaBus)) {
-                PersonaDTO personaDTO = new PersonaDTO();
-                personaDTO.setPerSecuen(perTmp.getPerSecuen());
-                personaDTO.setPerCedula(perTmp.getPerCedula());
-                personaDTO.setPerApellido(perTmp.getPerApellido());
-                personaDTO.setPerNombre(perTmp.getPerNombre());
-                personaDTO.setNombreGrado(perTmp.getGmiSecuen().getGmiAbreviat());
-                personaDTO.setTipoEfectivo(perTmp.getGmiSecuen().getGmiTipoefec().toString());
-                listPersonal.add(personaDTO);
-            }      
-            return listPersonal;
+        List<PersonaDTO> listPersonal = new ArrayList<>();
+        for (PperPersona perTmp : buscarPersonalPorGrupo(persona.getFunSecuen().getUniSecuen().getGdoSecuen().getGdoSecuen(),
+                fechaBus)) {
+            PersonaDTO personaDTO = new PersonaDTO();
+            personaDTO.setPerSecuen(perTmp.getPerSecuen());
+            personaDTO.setPerCedula(perTmp.getPerCedula());
+            personaDTO.setPerApellido(perTmp.getPerApellido());
+            personaDTO.setPerNombre(perTmp.getPerNombre());
+            personaDTO.setNombreGrado(perTmp.getGmiSecuen().getGmiAbreviat());
+            personaDTO.setTipoEfectivo(perTmp.getGmiSecuen().getGmiTipoefec().toString());
+            listPersonal.add(personaDTO);
+        }
+        return listPersonal;
     }
-    
+
     /**
-     *  Metodo para consultar al Personal con Novedad
+     * Metodo para consultar al Personal con Novedad
+     *
      * @param fechaBus
      * @param perSecuen
      * @return
@@ -130,33 +139,36 @@ public class NovedadWs {
     @GET
     @Path("consultarPerNovedad")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<PersonaDTO> consultarPersonalNovedad(@QueryParam(value = "fechaBus") Date fechaBus, 
-            @QueryParam(value = "perSecuen") Long perSecuen) throws Exception{
-            /***********************************************************************************
-             * Cargar Personal con Novedades
-             * ********************************************************************************/
+    public List<PersonaDTO> consultarPersonalNovedad(@QueryParam(value = "fechaBus") Date fechaBus,
+            @QueryParam(value = "perSecuen") Long perSecuen) throws Exception {
+        /**
+         * *********************************************************************************
+         * Cargar Personal con Novedades
+             * *******************************************************************************
+         */
         PperPersona persona = em.find(PperPersona.class, perSecuen);
-            List<PersonaDTO> listPersonalNov = new ArrayList<>();
-            for (PlypLiceperm licPerTmp:cargaNovedades(persona.getFunSecuen().getUniSecuen().getGdoSecuen().getGdoSecuen(), 
-                     fechaBus)) {
-                PersonaDTO personaDTO = new PersonaDTO();
-                personaDTO.setPerSecuen(licPerTmp.getPerSecuen().getPerSecuen());
-                personaDTO.setPerCedula(licPerTmp.getPerSecuen().getPerCedula());
-                personaDTO.setPerApellido(licPerTmp.getPerSecuen().getPerApellido());
-                personaDTO.setPerNombre(licPerTmp.getPerSecuen().getPerNombre());
-                personaDTO.setPerNovedad(licPerTmp.getTlpSecuen().getTlpDescri());
-                personaDTO.setPerFechaInicio(licPerTmp.getLypInicio());
-                personaDTO.setPerFechaFin(licPerTmp.getLypFin());
-                listPersonalNov.add(personaDTO);
-            }            
-            return listPersonalNov;
+        List<PersonaDTO> listPersonalNov = new ArrayList<>();
+        for (PlypLiceperm licPerTmp : cargaNovedades(persona.getFunSecuen().getUniSecuen().getGdoSecuen().getGdoSecuen(),
+                fechaBus)) {
+            PersonaDTO personaDTO = new PersonaDTO();
+            personaDTO.setPerSecuen(licPerTmp.getPerSecuen().getPerSecuen());
+            personaDTO.setPerCedula(licPerTmp.getPerSecuen().getPerCedula());
+            personaDTO.setPerApellido(licPerTmp.getPerSecuen().getPerApellido());
+            personaDTO.setPerNombre(licPerTmp.getPerSecuen().getPerNombre());
+            personaDTO.setPerNovedad(licPerTmp.getTlpSecuen().getTlpDescri());
+            personaDTO.setPerFechaInicio(licPerTmp.getLypInicio());
+            personaDTO.setPerFechaFin(licPerTmp.getLypFin());
+            listPersonalNov.add(personaDTO);
+        }
+        return listPersonalNov;
     }
-    
+
     /**
      * Método para listar personal DISPONIBLE de un grupo por fecha
+     *
      * @param idGru
      * @param fecha
-     * @return 
+     * @return
      */
     public List<PperPersona> buscarPersonalPorGrupo(Integer idGru, Date fecha) throws Exception {
         Query conPerGru = em.createNativeQuery("select p.per_secuen, p.per_nombre,"
@@ -185,7 +197,6 @@ public class NovedadWs {
      * @param fecha
      * @return
      */
-    
     public List<PlypLiceperm> cargaNovedades(Integer idGru, Date fecha) {
         Query connoved = em.createNativeQuery("Select * "
                 + "from personal.plyp_liceperm lyp, personal.pper_persona p,"
@@ -207,5 +218,16 @@ public class NovedadWs {
         connoved.setParameter(2, fecha);
         return connoved.getResultList();
     }
-    
+
+    private Date formaterarCadenaAFecha(String fechaFormateada) {
+        Date fechaFor = null;
+        try {
+            SimpleDateFormat formateador = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+            fechaFor = formateador.parse(fechaFormateada);
+        } catch (ParseException ex) {
+            Logger.getLogger(NovedadWs.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return fechaFor;
+    }
+
 }
