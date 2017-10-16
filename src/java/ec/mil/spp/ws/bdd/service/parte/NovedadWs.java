@@ -12,8 +12,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -80,8 +78,8 @@ public class NovedadWs {
         novedad.setCiuSecuen(BigInteger.valueOf(5));
         novedad.setPerSecuen(em.find(PperPersona.class, novedadDto.getPerSecuen()));
         novedad.setTlpSecuen(em.find(PtlpTiplicper.class, novedadDto.getTipoLicencia()));
-        novedad.setLypInicio(formaterarCadenaAFecha(novedadDto.getLypInicio()));
-        novedad.setLypFin(formaterarCadenaAFecha(novedadDto.getLypFin()));
+        novedad.setLypInicio(formatearCadenaFecha(novedadDto.getLypInicio()));
+        novedad.setLypFin(formatearCadenaFecha(novedadDto.getLypFin()));
         novedad.setLypObserv(novedadDto.getLypObserv());
         novedad.setLypDias(novedadDto.getLypDias());
         novedad.setLypHoras(novedadDto.getLypHoras());
@@ -110,7 +108,7 @@ public class NovedadWs {
         /**
          * *********************************************************************************
          * Consultar Personal Disponible
-             * *******************************************************************************
+         * *******************************************************************************
          */
         PperPersona persona = em.find(PperPersona.class, perSecuen);
         List<PersonaDTO> listPersonal = new ArrayList<>();
@@ -144,7 +142,7 @@ public class NovedadWs {
         /**
          * *********************************************************************************
          * Cargar Personal con Novedades
-             * *******************************************************************************
+         * *******************************************************************************
          */
         PperPersona persona = em.find(PperPersona.class, perSecuen);
         List<PersonaDTO> listPersonalNov = new ArrayList<>();
@@ -219,13 +217,12 @@ public class NovedadWs {
         return connoved.getResultList();
     }
 
-    private Date formaterarCadenaAFecha(String fechaFormateada) {
+    private Date formatearCadenaFecha(String fechaFormatear) {
         Date fechaFor = null;
         try {
             SimpleDateFormat formateador = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-            fechaFor = formateador.parse(fechaFormateada);
-        } catch (ParseException ex) {
-            Logger.getLogger(NovedadWs.class.getName()).log(Level.SEVERE, null, ex);
+            fechaFor = formateador.parse(fechaFormatear);
+        } catch (ParseException parseException) {
         }
         return fechaFor;
     }

@@ -83,23 +83,9 @@ public class SeguridadWs {
     @GET
     @Path("consultarTodos")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<UsuarioDTO> consultarTodos() {
-        UsuarioDTO usuarioDto;
-        List<SusuUsuario> conTodUsu = em.createQuery("Select usu from SusuUsuario usu", SusuUsuario.class).getResultList();
-        List<UsuarioDTO> listaUsuDto = new ArrayList();
-        for (SusuUsuario object : conTodUsu) {
-            usuarioDto = new UsuarioDTO();
-            usuarioDto.setUsuSecuen(object.getUsuSecuen());
-            usuarioDto.setUsuUsuario(object.getUsuUsuario());
-            usuarioDto.setUsuPassword(object.getUsuPassword());
-            usuarioDto.setPerSecuen(object.getPerSecuen().getPerSecuen());
-            usuarioDto.setPerCedula(object.getPerSecuen().getPerCedula());
-            usuarioDto.setPerNombre(object.getPerSecuen().getPerNombre());
-            usuarioDto.setPerApellido(object.getPerSecuen().getPerApellido());
-            listaUsuDto.add(usuarioDto);
-
-        }
-        return listaUsuDto;
+    public List<SusuUsuario> consultarTodos() {
+        TypedQuery<SusuUsuario> conTodUsu = em.createQuery("Select usu from SusuUsuario usu", SusuUsuario.class);
+        return conTodUsu.getResultList();
     }
 
 }
