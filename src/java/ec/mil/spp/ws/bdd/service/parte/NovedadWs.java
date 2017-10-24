@@ -156,6 +156,7 @@ public class NovedadWs {
             personaDTO.setPerNovedad(licPerTmp.getTlpSecuen().getTlpDescri());
             personaDTO.setPerFechaInicio(licPerTmp.getLypInicio());
             personaDTO.setPerFechaFin(licPerTmp.getLypFin());
+            personaDTO.setNombreGrado(licPerTmp.getPerSecuen().getGmiSecuen().getGmiAbreviat());
             listPersonalNov.add(personaDTO);
         }
         return listPersonalNov;

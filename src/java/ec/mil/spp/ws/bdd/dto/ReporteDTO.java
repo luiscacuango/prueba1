@@ -11,6 +11,7 @@ public class ReporteDTO {
     private String tipoEfectivo;
     private String novedad;
     private String persona;
+    private int idGrupo;
 
     public ReporteDTO(){
         
@@ -62,6 +63,14 @@ public class ReporteDTO {
 
     public void setPersona(String persona) {
         this.persona = persona;
+    }
+
+    public int getIdGrupo() {
+        return idGrupo;
+    }
+
+    public void setIdGrupo(int idGrupo) {
+        this.idGrupo = idGrupo;
     }
        
 }

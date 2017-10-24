@@ -49,10 +49,11 @@ public class ReporteWS {
     public List<ReporteDTO> consultarRepEst(@QueryParam(value = "sql") String sqlGrupos,
             @QueryParam(value = "fechaBus") String fecha) throws Exception {
         List<ReporteDTO> repEst = new ArrayList<>();
-        Query conRepEst = em.createNativeQuery("select row_number() over (ORDER BY per.per_secuen)as fila, (case gmi_tipoefec when 'O' then '1OFIC.' when 'V' then '2VOLT.' else '3S.P.' end) gmi_tipoefec,\n"
+        Query conRepEst = em.createNativeQuery("select row_number() over (ORDER BY per.per_secuen)as fila, "
+                + "   (case gmi_tipoefec when 'O' then '1OFIC.' when 'V' then '2VOLT.' else '3S.P.' end) gmi_tipoefec,\n"
                 + "   (case when personal.f_estado(per.per_secuen,?1::date) is null Then 'DISPONIBLES'\n"
                 + "    else personal.f_estado(per.per_secuen,?1::date) end) estado, ?1 as fec,\n"
-                + "    gdo_grupoope as grupo, 1::int as total\n"
+                + "    gdo_abreviat as grupo, 1::int as total\n"
                 + " from personal.pper_persona per, personal.pfun_funcion fun, personal.puni_unidad uni,\n"
                 + "      personal.pgdo_grupoope gdo, personal.pgmi_gradomil gmi\n"
                 + "   where per.fun_secuen = fun.fun_secuen\n"
@@ -75,4 +76,65 @@ public class ReporteWS {
         }
         return repEst;
     }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("grupo")
+    public List<ReporteDTO> consultarRepTotGrupo(@QueryParam(value = "fechaBus") String fecha) throws Exception {
+        List<ReporteDTO> repEst = new ArrayList<>();
+        Query conRepEst = em.createNativeQuery("select gdo.gdo_secuen, gdo.gdo_abreviat, count(*) "
+                + " from personal.pper_persona per, personal.pfun_funcion fun, personal.puni_unidad uni,\n"
+                + "      personal.pgdo_grupoope gdo, personal.pgmi_gradomil gmi\n"
+                + " where per.fun_secuen = fun.fun_secuen\n"
+                + "     and fun.uni_secuen = uni.uni_secuen\n"
+                + "     and per.gmi_secuen = gmi.gmi_secuen\n"
+                + "     and uni.gdo_secuen = gdo.gdo_secuen\n"
+                + "     and per.per_fecingre <= ?1::date \n"
+                + "     and (case when per.per_fecsalida is null Then current_date "
+                + "          else per.per_fecsalida end) >= ?1::date "
+                + " group by gdo.gdo_secuen ");
+        conRepEst.setParameter(1, fecha);
+        for (Object regTmp : conRepEst.getResultList()) {
+            Object[] reg = (Object[]) regTmp;
+            ReporteDTO repDto = new ReporteDTO();
+            repDto.setIdGrupo(Integer.parseInt(reg[0].toString()));
+            repDto.setGrupo(reg[1].toString());
+            repDto.setValor(Integer.parseInt(reg[2].toString()));
+            repEst.add(repDto);
+        }
+        return repEst;
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("novedad")
+    public List<ReporteDTO> consultarRepTotNovedad(@QueryParam(value = "fechaBus") String fecha,
+            @QueryParam(value = "idGrupo") int idGrupo) throws Exception {
+        List<ReporteDTO> repEst = new ArrayList<>();
+        Query conRepEst = em.createNativeQuery("select "
+                + "   (case when personal.f_estado(per.per_secuen,?1::date) is null Then 'DISPONIBLES' "
+                + "    else personal.f_estado(per.per_secuen,?1::date) end) novedad, count(*) "
+                + " from personal.pper_persona per, personal.pfun_funcion fun, personal.puni_unidad uni,\n"
+                + "      personal.pgdo_grupoope gdo, personal.pgmi_gradomil gmi\n"
+                + " where per.fun_secuen = fun.fun_secuen\n"
+                + "     and fun.uni_secuen = uni.uni_secuen\n"
+                + "     and per.gmi_secuen = gmi.gmi_secuen\n"
+                + "     and uni.gdo_secuen = gdo.gdo_secuen\n"
+                + "     and per.per_fecingre <= ?1::date \n"
+                + "     and (case when per.per_fecsalida is null Then current_date "
+                + "          else per.per_fecsalida end) >= ?1::date "
+                + "     and gdo.gdo_secuen = ?2 "
+                + " group by 1 ");
+        conRepEst.setParameter(1, fecha);
+        conRepEst.setParameter(2, idGrupo);
+        for (Object regTmp : conRepEst.getResultList()) {
+            Object[] reg = (Object[]) regTmp;
+            ReporteDTO repDto = new ReporteDTO();
+            repDto.setNovedad(reg[0].toString());
+            repDto.setValor(Integer.parseInt(reg[1].toString()));
+            repEst.add(repDto);
+        }
+        return repEst;
+    }
+
 }
