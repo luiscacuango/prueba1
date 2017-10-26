@@ -18,6 +18,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -74,8 +75,8 @@ public class NovedadWs {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("guardarNovedad")
     public String guardarNovedad(NovedadDTO novedadDto) throws Exception {
+        String mensaje = null;
         PlypLiceperm novedad = new PlypLiceperm();
-        novedad.setCiuSecuen(BigInteger.valueOf(5));
         novedad.setPerSecuen(em.find(PperPersona.class, novedadDto.getPerSecuen()));
         novedad.setTlpSecuen(em.find(PtlpTiplicper.class, novedadDto.getTipoLicencia()));
         novedad.setLypInicio(formatearCadenaFecha(novedadDto.getLypInicio()));
@@ -84,12 +85,20 @@ public class NovedadWs {
         novedad.setLypDias(novedadDto.getLypDias());
         novedad.setLypHoras(novedadDto.getLypHoras());
         novedad.setLypMinuto(novedadDto.getLypMinuto());
-        novedad.setLypEntreg('S');
-        novedad.setLypFecent(new Date());
-        novedad.setLypDiaimp(new Short("0"));
-        novedad.setLypFecha(new Date());
-        em.persist(novedad);
-        return "Novedad registrada exitosamente";
+
+        if (novedadDto.getLypSecuen() == null) {
+            novedad.setCiuSecuen(BigInteger.valueOf(5));
+            novedad.setLypEntreg('S');
+            novedad.setLypFecent(new Date());
+            novedad.setLypDiaimp(new Short("0"));
+            novedad.setLypFecha(new Date());
+            em.persist(novedad);
+            mensaje = "Novedad registrada exitosamente";
+        } else {
+            em.persist(novedad);
+            mensaje = "Novedad actualizada exitosamente";
+        }
+        return mensaje;
     }
 
     /**
@@ -149,7 +158,7 @@ public class NovedadWs {
         for (PlypLiceperm licPerTmp : cargaNovedades(persona.getFunSecuen().getUniSecuen().getGdoSecuen().getGdoSecuen(),
                 fechaBus)) {
             PersonaDTO personaDTO = new PersonaDTO();
-            personaDTO.setPerSecuen(licPerTmp.getPerSecuen().getPerSecuen());
+            personaDTO.setPerSecuen(licPerTmp.getLypSecuen());
             personaDTO.setPerCedula(licPerTmp.getPerSecuen().getPerCedula());
             personaDTO.setPerApellido(licPerTmp.getPerSecuen().getPerApellido());
             personaDTO.setPerNombre(licPerTmp.getPerSecuen().getPerNombre());
@@ -218,13 +227,85 @@ public class NovedadWs {
         return connoved.getResultList();
     }
 
+    /**
+     * Metodo para consultar la novedad por id
+     *
+     * @param idNov
+     * @return
+     * @throws Exception
+     */
+    @GET
+    @Path("consultar")
+    @Produces(MediaType.APPLICATION_JSON)
+    public NovedadDTO consultarPorId(@QueryParam(value = "idNov") int idNov) throws Exception {
+        NovedadDTO novedad = new NovedadDTO();
+        try {
+            PlypLiceperm perTmp = em.find(PlypLiceperm.class, new Long(idNov));
+            novedad.setLypSecuen(perTmp.getLypSecuen());
+            novedad.setLypInicio(formatearFechaACadena(perTmp.getLypInicio()));
+            novedad.setLypFin(formatearFechaACadena(perTmp.getLypFin()));
+            novedad.setLypObserv(perTmp.getLypObserv() == null ? "" : perTmp.getLypObserv());
+            novedad.setLypDias(perTmp.getLypDias() == null ? 0 : perTmp.getLypDias());
+            novedad.setLypHoras(perTmp.getLypHoras() == null ? 0 : perTmp.getLypHoras());
+            novedad.setLypMinuto(perTmp.getLypMinuto() == null ? 0 : perTmp.getLypMinuto());
+            novedad.setTipoLicencia(perTmp.getTlpSecuen().getTlpSecuen());
+            //Cargamos a la persona
+            PperPersona persona = em.find(PperPersona.class, perTmp.getPerSecuen().getPerSecuen());
+            PersonaDTO personaDTO = new PersonaDTO();
+            personaDTO.setPerApellido(persona.getPerApellido());
+            personaDTO.setPerNombre(persona.getPerNombre());
+            personaDTO.setNombreGrado(persona.getGmiSecuen().getGmiAbreviat());
+            personaDTO.setTipoEfectivo(persona.getGmiSecuen().getGmiTipoefec().toString());
+            novedad.setPersona(personaDTO);
+        } catch (Exception e) {
+            throw new Exception("Novedad no encontrada");
+        }
+        return novedad;
+    }
+
+    /**
+     * Metodo para eliminar la novedad por id
+     *
+     * @param idNov
+     * @return
+     * @throws Exception
+     */
+    @DELETE
+    @Path("eliminar")
+    public NovedadDTO eliminarPorId(@QueryParam(value = "idNov") int idNov) throws Exception {
+        NovedadDTO novedad = new NovedadDTO();
+        String mensaje = null;
+        try {
+            PlypLiceperm perTmp = em.find(PlypLiceperm.class, new Long(idNov));
+            em.remove(perTmp);
+            mensaje = "Novedad eliminada correctamente";
+        } catch (Exception e) {
+            throw new Exception("Novedad no encontrada");
+        }
+        return novedad;
+    }
+
     private Date formatearCadenaFecha(String fechaFormatear) {
         Date fechaFor = null;
         try {
             SimpleDateFormat formateador = new SimpleDateFormat("yyyy-MM-dd HH:mm");
             fechaFor = formateador.parse(fechaFormatear);
         } catch (ParseException parseException) {
+            fechaFor = new Date();
         }
+        return fechaFor;
+    }
+
+    /**
+     * Formatear fecha a Cadena string
+     *
+     * @param fechaFormatear
+     * @return
+     */
+    private String formatearFechaACadena(Date fechaFormatear) {
+        String fechaFor = null;
+        SimpleDateFormat formateador = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        fechaFor = formateador.format(fechaFormatear);
         return fechaFor;
     }
 
